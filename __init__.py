@@ -88,7 +88,7 @@ class BingImageGrabber:
 
         bing_txt = search_term.lower().strip()
         
-        print(bing_txt)
+        #print(bing_txt)
         
         bing_txt.translate(dict.fromkeys(map(ord, u"/\&:+:%")))
         
@@ -101,7 +101,7 @@ class BingImageGrabber:
             os.makedirs("./ComfyUI/custom_nodes/ConCarneNode/searchcache/")
         
         if (os.path.isfile("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+".searchcache")) and cache_search:
-            print ("ok")
+            #print ("ok")
             text_file = open("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+".searchcache", "r")
             totallinks = text_file.readlines()
             text_file.close()
@@ -123,7 +123,7 @@ class BingImageGrabber:
                 
                 if links[-1] == last or current > 20:
                     done = True
-                    print("loop finished " + str(current))
+                    #print("loop finished " + str(current))
                     break
 
                 current += 1
@@ -160,10 +160,10 @@ class BingImageGrabber:
             
             if os.path.isfile("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+bing_txt+"/"+filename) and cache_images:
                 foundimage = Image.open("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+bing_txt+"/"+filename)
-                print ('Loading image from cache')
+                #print ('Loading image from cache')
                 break
             
-            print ("downloading " + url)
+            #print ("downloading " + url)
             
             try:
                 request=urllib.request.Request(url,None,urlopenheader)
@@ -192,7 +192,7 @@ class BingImageGrabber:
         image = image.convert("RGB")
         image = pil2tensor(image).unsqueeze(0)
         
-        print (image.size())
+        #print (image.size())
         
         return (image)
 
