@@ -10,59 +10,20 @@ import numpy as np
 import torch
 
 from PIL import Image, ImageOps
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
     
 class BingImageGrabber:
-    """
-    A example node
 
-    Class methods
-    -------------
-    INPUT_TYPES (dict): 
-        Tell the main program input parameters of nodes.
-
-    Attributes
-    ----------
-    RETURN_TYPES (`tuple`): 
-        The type of each element in the output tulple.
-    RETURN_NAMES (`tuple`):
-        Optional: The name of each output in the output tulple.
-    FUNCTION (`str`):
-        The name of the entry-point method. For example, if `FUNCTION = "execute"` then it will run Example().execute()
-    OUTPUT_NODE ([`bool`]):
-        If this node is an output node that outputs a result/image from the graph. The SaveImage node is an example.
-        The backend iterates on these output nodes and tries to execute all their parents if their parent graph is properly connected.
-        Assumed to be False if not present.
-    CATEGORY (`str`):
-        The category the node should appear in the UI.
-    execute(s) -> tuple || None:
-        The entry point method. The name of this method must be the same as the value of property `FUNCTION`.
-        For example, if `FUNCTION = "execute"` then this method's name must be `execute`, if `FUNCTION = "foo"` then it must be `foo`.
-    """
     def __init__(self):
         pass
     
     @classmethod
     def INPUT_TYPES(s):
-        """
-            Return a dictionary which contains config for all input fields.
-            Some types (string): "MODEL", "VAE", "CLIP", "CONDITIONING", "LATENT", "IMAGE", "INT", "STRING", "FLOAT".
-            Input types "INT", "STRING" or "FLOAT" are special values for fields on the node.
-            The type can be a list for selection.
-
-            Returns: `dict`:
-                - Key input_fields_group (`string`): Can be either required, hidden or optional. A node class must have property `required`
-                - Value input_fields (`dict`): Contains input fields config:
-                    * Key field_name (`string`): Name of a entry-point method's argument
-                    * Value field_config (`tuple`):
-                        + First value is a string indicate the type of field or a list for selection.
-                        + Secound value is a config for type "INT", "STRING" or "FLOAT".
-        """
         return {
             "required": {
-                #"num_of_images": ("INT", {"default": 1,}),
                 "search_term": ("STRING", {"default": "dog"}),
                 "cache_search": ("BOOLEAN", {"default": True},),
                 "cache_images": ("BOOLEAN", {"default": True},),
@@ -196,14 +157,74 @@ class BingImageGrabber:
         
         return (image)
 
+class Zephyr:
+    
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "A list of interesting subjects for photographs are as follows:"}),
+             },
+        }
+
+    RETURN_TYPES = ("STRING",)
+
+    FUNCTION = "test"
+
+    CATEGORY = "ConCarne"
+
+    #@classmethod
+    #def IS_CHANGED(cls, **kwargs):
+    #    return float("NaN")
+    
+    def test(self, prompt):
+
+        tokenizer = AutoTokenizer.from_pretrained('stabilityai/stablelm-zephyr-3b')
+        model = AutoModelForCausalLM.from_pretrained(
+            'stabilityai/stablelm-zephyr-3b',
+            trust_remote_code=True,
+            device_map="auto"
+        )
+
+        prompt = [{'role': 'user', 'content': prompt}]
+        inputs = tokenizer.apply_chat_template(
+            prompt,
+            add_generation_prompt=True,
+            return_tensors='pt'
+        )
+
+        tokens = model.generate(
+            inputs.to(model.device),
+            max_new_tokens=512,
+            temperature=0.8,
+            do_sample=True, 
+            pad_token_id=tokenizer.eos_token_id
+        )
+
+        text = tokenizer.decode(tokens[0], skip_special_tokens=False)   
+        text = text.split("<|assistant|>")[-1]
+        text = text.replace("<|endoftext|>","")
+        
+        compiledtext = ""
+        
+        for line in text.splitlines():
+            if len(line) > 3:
+                compiledtext = compiledtext + line + "\n"
+
+        return (compiledtext,)
 
 # A dictionary that contains all nodes you want to export with their names
 # NOTE: names should be globally unique
 NODE_CLASS_MAPPINGS = {
-    "BingImageGrabber": BingImageGrabber
+    "BingImageGrabber": BingImageGrabber,
+    "Zephyr": Zephyr
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BingImageGrabber": "Bing Image Grabber"
+    "BingImageGrabber": "Bing Image Grabber",
+    "Zephyr": "Zephyr Chat"
 }
