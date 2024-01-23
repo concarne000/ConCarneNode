@@ -169,6 +169,7 @@ class BingImageGrabber:
                         #imagefile=open(os.path.join("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+"/", filenamehash+".jpg"),'wb')
                         #imagefile.write(image_data)
                         #imagefile.close()
+                        foundimage.convert("RGB")
                         foundimage.save(os.path.join("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+"/", filenamehash+".jpg"))
 
                 image = foundimage
