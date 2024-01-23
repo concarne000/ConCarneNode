@@ -4,6 +4,8 @@ ComfyUI Nodes
 ## Bing Image Grabber node
 
 Collects a random image via Bing Image Search using input search term
+
+Note - Collecting multiple images will crop and resize to 512x512 for batching
   
   
 # Example usage -
