@@ -59,9 +59,7 @@ class BingImageGrabber:
         iterations = 1
 
         bing_txt = search_term.lower().strip()
-        
-        #print(bing_txt)
-        
+                
         bing_txt.translate(dict.fromkeys(map(ord, u"/\&:+:%")))
         
         texthash = str(hashlib.md5(bing_txt.encode()).hexdigest())
@@ -72,14 +70,8 @@ class BingImageGrabber:
         if not os.path.exists("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"):
             os.makedirs("./ComfyUI/custom_nodes/ConCarneNode/searchcache/")
         
-        if (cache_search):
-            print ("Cache search enabled")
-        
-        if (os.path.isfile("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+".searchcache")):
-            print ("Cache found")
-        
         if (os.path.isfile("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+".searchcache")) and cache_search:
-            print ("Loading links from cache")
+            #print ("Loading links from cache")
             text_file = open("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+".searchcache", "r")
             totallinks = text_file.readlines()
             text_file.close()
@@ -147,7 +139,7 @@ class BingImageGrabber:
                 
                 if os.path.isfile("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+"/"+filenamehash+".jpg") and cache_images:
                     foundimage = Image.open("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash+"/"+filenamehash+".jpg")
-                    print ('Loading image from cache')
+                    #print ('Loading image from cache')
                     
                 else:
                 
