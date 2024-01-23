@@ -20,6 +20,8 @@ Note - Collecting multiple images will crop and resize to 512x512 for batching
   
 **Using multiple images to embed IPAdapter on the fly**
 
+Using a list of images of "woman drinking orange juice" from Bing, with the prompt of "selena gomez"
+
 ![Screenshot 2024-01-23 131310](https://github.com/concarne000/ConCarneNode/assets/49512595/a94137dc-8707-4a9a-8d5f-76c35629e7c7)
 ![CC_00027_](https://github.com/concarne000/ConCarneNode/assets/49512595/a67c25a3-d19d-4900-8758-17aace9e3a22)
 
@@ -27,6 +29,9 @@ Note - Collecting multiple images will crop and resize to 512x512 for batching
   
   
 **Using multiple images for facial embed**
+
+Using a list of images of "PewDiePie" from Bing, cropped to face, with the prompt of "man in armor"
+
 
 ![Screenshot 2024-01-23 160004](https://github.com/concarne000/ConCarneNode/assets/49512595/19c6479a-ee08-4da0-baf0-22bd90060225)
 ![CC_00029_](https://github.com/concarne000/ConCarneNode/assets/49512595/692a28be-359f-474b-a066-3d072d70f65b)
