@@ -38,6 +38,7 @@ class BingImageGrabber:
                 "num_of_images": ("INT", {"default": 1}),
                 "cache_search": ("BOOLEAN", {"default": True},),
                 "cache_images": ("BOOLEAN", {"default": True},),
+                "use_number_of_links": ("INT", {"default": -1}),
              },
         }
 
@@ -54,7 +55,7 @@ class BingImageGrabber:
     def IS_CHANGED(cls, **kwargs):
         return float("NaN")
         
-    def test(self, search_term, num_of_images, cache_search, cache_images):
+    def test(self, search_term, num_of_images, cache_search, cache_images, use_number_of_links):
 
         iterations = 1
 
@@ -118,6 +119,9 @@ class BingImageGrabber:
         if not os.path.exists("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash) and cache_images:
             os.makedirs("./ComfyUI/custom_nodes/ConCarneNode/searchcache/"+texthash)          
         
+        if (use_number_of_links > 0):
+            totallinks = totallinks[0:use_number_of_links]
+        
         random.shuffle(totallinks)
         
         for index in range(len(totallinks)):
@@ -147,7 +151,7 @@ class BingImageGrabber:
                     
                     try:
                         request=urllib.request.Request(url,None,urlopenheader)
-                        image_data=urllib.request.urlopen(request).read()
+                        image_data=urllib.request.urlopen(request, timeout=3).read()
                     except:
                         continue
                                 
@@ -172,7 +176,7 @@ class BingImageGrabber:
                 
                     foundimage = center_crop(foundimage, minsize, minsize)
                 
-                    image = foundimage.resize((512,512))
+                    image = foundimage.resize((1024,1024))
                     
                 else:
                 
@@ -183,6 +187,8 @@ class BingImageGrabber:
                 image = pil2tensor(image).unsqueeze(0)
                 
                 images.append(image)
+                
+                print("Image number " + str(len(images)) + " downloaded")
                 
                 break          
  
@@ -251,15 +257,62 @@ class Zephyr:
 
         return (compiledtext,)
 
+class Hermes:
+    
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "A list of interesting subjects for photographs are as follows:"}),
+             },
+        }
+
+    RETURN_TYPES = ("STRING",)
+
+    FUNCTION = "test"
+
+    CATEGORY = "ConCarne"
+
+    #@classmethod
+    #def IS_CHANGED(cls, **kwargs):
+    #    return float("NaN")
+    
+    def test(self, prompt):
+
+        tokenizer = AutoTokenizer.from_pretrained('TheBloke/OpenHermes-2.5-Mistral-7B-GPTQ')
+        model = AutoModelForCausalLM.from_pretrained(
+            'TheBloke/OpenHermes-2.5-Mistral-7B-GPTQ',
+            device_map="auto",
+            trust_remote_code=False,
+            revision="main")
+
+        prompt = prompt
+        prompt_template=f'''<|im_start|>system
+            {system_message}<|im_end|>
+            <|im_start|>user
+            {prompt}<|im_end|>
+            <|im_start|>assistant
+            '''
+            
+        input_ids = tokenizer(prompt_template, return_tensors='pt').input_ids.cuda()
+        output = model.generate(inputs=input_ids, temperature=0.7, do_sample=True, top_p=0.95, top_k=40, max_new_tokens=512)
+
+        return (tokenizer.decode(output[0]),)
+
 # A dictionary that contains all nodes you want to export with their names
 # NOTE: names should be globally unique
 NODE_CLASS_MAPPINGS = {
     "BingImageGrabber": BingImageGrabber,
-    "Zephyr": Zephyr
+    "Zephyr": Zephyr,
+    "Hermes": Hermes
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {
     "BingImageGrabber": "Bing Image Grabber",
-    "Zephyr": "Zephyr Chat"
+    "Zephyr": "Zephyr Chat",
+    "Hermes": "Hermes Chat"
 }
